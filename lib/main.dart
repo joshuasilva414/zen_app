@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'views/HomeView.dart';
+import 'views/EntryView.dart';
+import 'views/CalendarView.dart';
+import 'db.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseInstance.instance.db;
+
   runApp(const MyApp());
 }
 
@@ -41,9 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: const TabBarView(
           children: [
-            Center(child: Text('Welcome to the Home tab')),
-            Center(child: Text('Discover content on the Explore tab')),
-            Center(child: Text('Manage your profile here')),
+            HomeView(),
+            EntryView(),
+            CalendarView(),
           ],
         ),
         bottomNavigationBar: const TabBar(
