@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EntryView extends StatefulWidget {
-    const EntryView({Key? key}) : super(key: key);
+    const EntryView({Key? key, this.prompt}) : super(key: key);
+
+    final String? prompt;
 
     @override
     State<EntryView> createState() => _EntryViewState();
@@ -14,7 +16,7 @@ class _EntryViewState extends State<EntryView> {
             appBar: AppBar(
                 title: const Text('Entry'),
             ),
-            body: const Center(child: Text('Welcome to the Entry tab')),
+            body: Center(child: Text(widget.prompt ?? 'Welcome to the Entry tab')),
         );
     }
 }

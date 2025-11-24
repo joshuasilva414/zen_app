@@ -1,18 +1,18 @@
 class Entry {
     final int id;
-    final int promptId;
+    final String prompt;
     final int timestamp;
     final String content;
 
-    const Entry({this.id, this.promptId, this.timestamp, this.content});
+    const Entry({required this.id, required this.prompt, required this.timestamp, required this.content});
 
     Map<String, Object?> toMap() {
-        return {'id': id, 'promptId': promptId, 'timestamp': timestamp, 'content': content};
+        return {'id': id, 'prompt': prompt, 'timestamp': timestamp, 'content': content};
     }
 
     @override
     String toString() {
-        return 'Entry{id: $id, promptId: $promptId, timestamp: $timestamp, content: $content}';
+        return 'Entry{id: $id, prompt: $prompt, timestamp: $timestamp, content: $content}';
     }
 }
 

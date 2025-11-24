@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'prompts.dart';
+
 class DatabaseInstance {
   DatabaseInstance._privateConstructor();
   static final DatabaseInstance instance = DatabaseInstance._privateConstructor();
@@ -23,11 +25,7 @@ class DatabaseInstance {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-            'CREATE TABLE entries(id INTEGER PRIMARY KEY, timestamp TEXT, content TEXT)');
-        await db.execute(
-            'CREATE TABLE days(id INTEGER PRIMARY KEY, timestamp TEXT, content TEXT)');
-        await db.execute(
-            'CREATE TABLE prompts(id INTEGER PRIMARY KEY, timestamp TEXT, content TEXT)');
+            'CREATE TABLE entries(id INTEGER PRIMARY KEY AUTOINCREMENT, prompt TEXT, timestamp TEXT, content TEXT)');
       },
     );
   }
