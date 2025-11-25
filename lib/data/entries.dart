@@ -4,12 +4,24 @@ class EntryRepository {
   Future<List<String>> getAllEntryDates() async {
     final db = await DatabaseInstance.instance.db;
 
-    final res = await db.query("entries",columns: ["timestamp"]);
+    final res = await db.query("entries", columns: ["timestamp"]);
 
     return res.map((e) => e["timestamp"] as String).toList();
   }
-  
-  Future<int> insertEntry(String prompt, String timestamp, String content) async{
+
+  Future<List<String>> getAllEntryDatesSorted() async {
+    final db = await DatabaseInstance.instance.db;
+
+    final res = await db.query(
+      "entries",
+      columns: ["timestamp"],
+      orderBy: "timestamp ASC",
+    );
+
+    return res.map((e) => e["timestamp"] as String).toList();
+  }
+
+  Future<int> insertEntry(String prompt, String timestamp, String content) async {
     final db = await DatabaseInstance.instance.db;
     final data = {
       "prompt": prompt,
@@ -17,28 +29,26 @@ class EntryRepository {
       "content": content
     };
     return await db.insert("entries", data);
-
   }
 
-  Future <bool> isEmpty()async{
+  Future<bool> isEmpty() async {
     final db = await DatabaseInstance.instance.db;
     final res = await db.query("entries", limit: 1);
     return res.isEmpty;
   }
 
-    Future <Map<String, dynamic>?> getEntryByDate(String date) async {
-      final db = await DatabaseInstance.instance.db;
-      final res = await db.query("entries", where:" timestamp = ?", whereArgs:[date], limit: 1);
-      if(res.isEmpty){
-        return null;
-      }
-      return res.first;
+  Future<Map<String, dynamic>?> getEntryByDate(String date) async {
+    final db = await DatabaseInstance.instance.db;
+    final res = await db.query("entries", where: " timestamp = ?", whereArgs: [date], limit: 1);
+    if (res.isEmpty) {
+      return null;
     }
+    return res.first;
+  }
 
-    Future<void> seedDummyEntries() async {
+  Future<void> seedDummyEntries() async {
     final db = await DatabaseInstance.instance.db;
 
-    // Three example entries
     final data = [
       {
         "prompt": "How was your day?",
@@ -61,6 +71,7 @@ class EntryRepository {
       await db.insert("entries", row);
     }
   }
+
   Future<int> updateEntry(int id, Map<String, dynamic> data) async {
     final db = await DatabaseInstance.instance.db;
     return db.update(
@@ -70,5 +81,6 @@ class EntryRepository {
       whereArgs: [id],
     );
   }
+
 
 }

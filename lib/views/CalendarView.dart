@@ -5,6 +5,7 @@ import 'package:zen_app/data/entries.dart';
 import 'EntryDetailView.dart';
 import 'EntryEditorView.dart';
 import 'package:zen_app/prompts.dart';
+
 class CalendarView extends StatefulWidget {
   const CalendarView({Key? key}) : super(key: key);
 
@@ -57,7 +58,8 @@ class _CalendarViewState extends State<CalendarView> {
     setState(() {
       _entryEvents = LinkedHashMap<DateTime, List<String>>(
         equals: isSameDay,
-        hashCode: (key) => key.day * 1000000 + key.month * 10000 + key.year,
+        hashCode: (key) =>
+            key.day * 1000000 + key.month * 10000 + key.year,
       )..addAll(mapped);
     });
   }
@@ -68,93 +70,157 @@ class _CalendarViewState extends State<CalendarView> {
       appBar: AppBar(
         title: const Text('Calendar'),
       ),
-      body: TableCalendar(
-        firstDay: DateTime.utc(2010, 10, 16),
-        lastDay: DateTime.utc(2030, 3, 14),
-        focusedDay: _focusedDay,
+      body: Column(
+        children: [
+          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
-        selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+          Expanded(
+            child: TableCalendar(
+              firstDay: DateTime.utc(2010, 10, 16),
+              lastDay: DateTime.utc(2030, 3, 14),
+              focusedDay: _focusedDay,
 
-        onDaySelected: (selectedDay, focusedDay) async {
-          setState(() {
-            _selectedDay = selectedDay;
-            _focusedDay = focusedDay;
-          });
+              onPageChanged: (focusedDay) {
+                // instant UI update when swiping
+                setState(() {
+                  _focusedDay = focusedDay;
+                });
 
-          final repo = EntryRepository();
+                // load events in background
+                _loadEntryIndicators();
+              },
 
-          final dateKey =
-              "${selectedDay.year.toString().padLeft(4, '0')}"
-              "-${selectedDay.month.toString().padLeft(2, '0')}"
-              "-${selectedDay.day.toString().padLeft(2, '0')}";
+              selectedDayPredicate: (day) =>
+                  isSameDay(_selectedDay, day),
 
-          final today = DateTime.now();
-          final normalizedToday =
-              DateTime(today.year, today.month, today.day);
-          final normalizedSelected =
-              DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+              onDaySelected: (selectedDay, focusedDay) async {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
 
-          if (normalizedSelected.isAfter(normalizedToday)) {
-            return;
-          }
+                final repo = EntryRepository();
 
-          final entry = await repo.getEntryByDate(dateKey);
+                final dateKey =
+                    "${selectedDay.year.toString().padLeft(4, '0')}"
+                    "-${selectedDay.month.toString().padLeft(2, '0')}"
+                    "-${selectedDay.day.toString().padLeft(2, '0')}";
 
-            if(entry == null){
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => EntryEditorView(
-                      isEditing: false,       // creating new entry
-                      entryId: null,          // no ID yet
-                      date: dateKey,          // the date user tapped
-                      prompt: "",
-                      content: "",            // start with empty content
+                final today = DateTime.now();
+                final normalizedToday =
+                    DateTime(today.year, today.month, today.day);
+                final normalizedSelected =
+                    DateTime(selectedDay.year, selectedDay.month,
+                        selectedDay.day);
+
+                if (normalizedSelected.isAfter(normalizedToday)) {
+                  return;
+                }
+
+                final entry = await repo.getEntryByDate(dateKey);
+
+                if (entry == null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EntryEditorView(
+                        isEditing: false,
+                        entryId: null,
+                        date: dateKey,
+                        prompt: "",
+                        content: "",
+                      ),
                     ),
-                  ),
-              );
-            }
-            else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => EntryDetailView(entry: entry),
-              ),
-            );
-          }
-          
-        },
+                  ).then((didSave) {
+                    if (didSave == true) {
+                      setState(() {});    // instant refresh
+                      _loadEntryIndicators(); // async refresh
+                    }
+                  });
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EntryDetailView(entry: entry),
+                    ),
+                  ).then((didSave) {
+                    if (didSave == true) {
+                      setState(() {});    // instant refresh
+                      _loadEntryIndicators(); // async refresh
+                    }
+                  });
+                }
+              },
 
-        calendarFormat: _calendarFormat,
-        availableCalendarFormats: const {CalendarFormat.month: 'Month'},
+              calendarFormat: _calendarFormat,
+              availableCalendarFormats: const {
+                CalendarFormat.month: 'Month'
+              },
 
-        onFormatChanged: (format) {
-          setState(() {
-            _calendarFormat = format;
-          });
-        },
+              onFormatChanged: (format) {
+                setState(() {
+                  _calendarFormat = format;
+                });
+              },
 
-        eventLoader: (day) {
-          return _entryEvents[day] ?? [];
-        },
+              eventLoader: (day) {
+                final normalized = DateTime(day.year, day.month, day.day);
+                return _entryEvents[normalized] ?? [];
+              },
 
-        calendarBuilders: CalendarBuilders(
-          markerBuilder: (context, date, events) {
-            if (events.isEmpty) return null;
-
-            return Positioned(
-              bottom: 4,
-              child: Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFF7A1A),
+              calendarStyle: const CalendarStyle(
+                markersMaxCount: 0,
+                markerDecoration: BoxDecoration(),
+                 selectedDecoration: BoxDecoration(
+                  color: Color(0xFFC96442), // orange
                   shape: BoxShape.circle,
                 ),
+                selectedTextStyle: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+
+                // Today (outlined orange circle)
+                todayDecoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.fromBorderSide(
+                    BorderSide(
+                      color: Color(0xFFC96442), 
+                      width: 2,
+                    ),
+                  ),
+                ),
+               
               ),
-            );
-          },
-        ),
+
+              calendarBuilders: CalendarBuilders(
+                defaultBuilder: (context, date, _) {
+                  final normalized = DateTime(date.year, date.month, date.day);
+                  final hasEntry = _entryEvents[normalized] != null;
+
+                  if (hasEntry) {
+                    return Center(
+                      child: Text(
+                        '${date.day}',
+                        style: const TextStyle(
+                          color: Color(0xFFC96442),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return null;
+                },
+
+                markerBuilder: (context, date, events) {
+                  return null;
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

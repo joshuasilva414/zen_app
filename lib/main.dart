@@ -3,7 +3,7 @@ import 'views/HomeView.dart';
 import 'views/EntryView.dart';
 import 'views/CalendarView.dart';
 import 'db.dart';
-
+import 'package:zen_app/theme/claude_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseInstance.instance.db;
@@ -18,9 +18,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Zen Tabs',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: claudeLightTheme,
+      darkTheme: claudeDarkTheme,
+      themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Zen Tabs'),
     );
@@ -46,11 +46,17 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           title: Text(widget.title),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
             HomeView(),
             EntryView(),
-            CalendarView(),
+            Navigator(
+              onGenerateRoute: (settings) {
+                return MaterialPageRoute(
+                  builder: (_) => CalendarView(),
+                );
+              },
+            ),
           ],
         ),
         bottomNavigationBar: const TabBar(

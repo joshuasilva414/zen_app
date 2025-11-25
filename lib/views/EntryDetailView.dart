@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zen_app/data/entries.dart';
 import 'EntryEditorView.dart';
+
 class EntryDetailView extends StatefulWidget {
   final Map<String, dynamic> entry;
 
@@ -15,6 +16,11 @@ class _EntryDetailViewState extends State<EntryDetailView> {
 
   late TextEditingController promptController;
   late TextEditingController contentController;
+
+  static const months = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
 
   @override
   void initState() {
@@ -44,19 +50,21 @@ class _EntryDetailViewState extends State<EntryDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    final timestamp = widget.entry["timestamp"];
-    print(widget.entry);
+    final raw = widget.entry["timestamp"];
+    final dt = DateTime.parse(raw);
+    final formatted = "${months[dt.month - 1]} ${dt.day}, ${dt.year}";
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(timestamp),
+        title: Text(formatted),
         actions: [
           if (!isEditing)
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
-                final id = widget.entry["id"];        
-                final prompt = widget.entry["prompt"]; 
-                final content = widget.entry["content"]; 
+                final id = widget.entry["id"];
+                final prompt = widget.entry["prompt"];
+                final content = widget.entry["content"];
                 final timestamp = widget.entry["timestamp"];
 
                 Navigator.push(
@@ -81,6 +89,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
             ),
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: isEditing
@@ -125,7 +134,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                         style: const TextStyle(fontSize: 16),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
       ),
