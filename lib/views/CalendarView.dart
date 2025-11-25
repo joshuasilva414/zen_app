@@ -1,7 +1,10 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-
+import 'package:zen_app/data/entries.dart';
+import 'EntryDetailView.dart';
+import 'EntryEditorView.dart';
+import 'package:zen_app/prompts.dart';
 class CalendarView extends StatefulWidget {
   const CalendarView({Key? key}) : super(key: key);
 
@@ -15,40 +18,49 @@ class _CalendarViewState extends State<CalendarView> {
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
 
-  int _getHashCode(DateTime key) {
-    return key.day * 1000000 + key.month * 10000 + key.year;
-  }
-
   LinkedHashMap<DateTime, List<String>> _entryEvents =
       LinkedHashMap<DateTime, List<String>>(
     equals: isSameDay,
     hashCode: (key) =>
-        key.day * 1000000 + key.month * 10000 + key.year, // same as _getHashCode
+        key.day * 1000000 + key.month * 10000 + key.year,
   );
 
   @override
   void initState() {
     super.initState();
-    //_loadEntryIndicators();
+    _initialize();
   }
 
- /*Future<void> _loadEntryIndicators() async {
-  final repo = EntryRepository();
-  final dates = await repo.getAllEntryDates();
+  Future<void> _initialize() async {
+    final repo = EntryRepository();
 
-  final mapped = <DateTime, List<String>>{};
+    final empty = await repo.isEmpty();
+    if (empty) {
+      await repo.seedDummyEntries();
+    }
 
-  for (final d in dates) {
-    final parsed = DateTime.parse(d);
-    final normalized = DateTime(parsed.year, parsed.month, parsed.day);
-    mapped[normalized] = ["entry"];
+    await _loadEntryIndicators();
   }
 
-  setState(() {
-    _entryEvents.addAll(mapped);
-  });
-}*/
+  Future<void> _loadEntryIndicators() async {
+    final repo = EntryRepository();
+    final dates = await repo.getAllEntryDates();
 
+    final mapped = <DateTime, List<String>>{};
+
+    for (final d in dates) {
+      final parsed = DateTime.parse(d);
+      final normalized = DateTime(parsed.year, parsed.month, parsed.day);
+      mapped[normalized] = ["entry"];
+    }
+
+    setState(() {
+      _entryEvents = LinkedHashMap<DateTime, List<String>>(
+        equals: isSameDay,
+        hashCode: (key) => key.day * 1000000 + key.month * 10000 + key.year,
+      )..addAll(mapped);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +75,54 @@ class _CalendarViewState extends State<CalendarView> {
 
         selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
 
-        onDaySelected: (selectedDay, focusedDay) {
+        onDaySelected: (selectedDay, focusedDay) async {
           setState(() {
             _selectedDay = selectedDay;
             _focusedDay = focusedDay;
           });
+
+          final repo = EntryRepository();
+
+          final dateKey =
+              "${selectedDay.year.toString().padLeft(4, '0')}"
+              "-${selectedDay.month.toString().padLeft(2, '0')}"
+              "-${selectedDay.day.toString().padLeft(2, '0')}";
+
+          final today = DateTime.now();
+          final normalizedToday =
+              DateTime(today.year, today.month, today.day);
+          final normalizedSelected =
+              DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+
+          if (normalizedSelected.isAfter(normalizedToday)) {
+            return;
+          }
+
+          final entry = await repo.getEntryByDate(dateKey);
+
+            if(entry == null){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => EntryEditorView(
+                      isEditing: false,       // creating new entry
+                      entryId: null,          // no ID yet
+                      date: dateKey,          // the date user tapped
+                      prompt: "",
+                      content: "",            // start with empty content
+                    ),
+                  ),
+              );
+            }
+            else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => EntryDetailView(entry: entry),
+              ),
+            );
+          }
+          
         },
 
         calendarFormat: _calendarFormat,
