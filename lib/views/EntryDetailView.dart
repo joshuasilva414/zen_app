@@ -17,6 +17,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
   late TextEditingController promptController;
   late TextEditingController contentController;
 
+
   static const months = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
@@ -66,7 +67,6 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                 final prompt = widget.entry["prompt"];
                 final content = widget.entry["content"];
                 final timestamp = widget.entry["timestamp"];
-
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -78,7 +78,9 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                       content: content,
                     ),
                   ),
-                );
+                ).then((_) {
+                  saveChanges();
+                });
               },
             ),
 

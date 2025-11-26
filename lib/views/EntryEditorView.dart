@@ -30,7 +30,6 @@ class _EntryEditorViewState extends State<EntryEditorView> {
   void initState() {
     super.initState();
 
-
     selectedPrompt =
         (widget.prompt.isEmpty || !allPrompts.contains(widget.prompt))
             ? null

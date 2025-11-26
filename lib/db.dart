@@ -19,7 +19,7 @@ class DatabaseInstance {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'zen.db');
+    String path = join(await getDatabasesPath(), 'zen_app.db');
     return await openDatabase(
       path,
       version: 1,

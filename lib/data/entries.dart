@@ -81,6 +81,4 @@ class EntryRepository {
       whereArgs: [id],
     );
   }
-
-
 }
