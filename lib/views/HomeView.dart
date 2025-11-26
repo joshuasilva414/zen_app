@@ -23,7 +23,7 @@ class _HomeViewState extends State<HomeView> {
         }
 
         final now = DateTime.now();
-        final seed = now.year * 10000 + now.month * 100 + now.day;
+        final seed = now.year * 10000 + now.month * 100 + now.day * 100 + now.hour * 100 + now.minute * 100 + now.second * 100 + now.millisecond;
         final random = Random(seed);
 
         List<String> shuffledPrompts = List.from(allPrompts);
