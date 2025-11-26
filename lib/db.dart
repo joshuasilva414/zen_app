@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'prompts.dart';
 
 class DatabaseInstance {
   DatabaseInstance._privateConstructor();

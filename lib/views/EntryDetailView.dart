@@ -16,42 +16,53 @@ class _EntryDetailViewState extends State<EntryDetailView> {
 
   late TextEditingController promptController;
   late TextEditingController contentController;
-
+  late Map<String, dynamic> currentEntry;
 
   static const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   @override
   void initState() {
     super.initState();
-    promptController = TextEditingController(text: widget.entry["prompt"]);
-    contentController = TextEditingController(text: widget.entry["content"]);
+    currentEntry = Map<String, dynamic>.from(widget.entry);
+    promptController = TextEditingController(text: currentEntry["prompt"]);
+    contentController = TextEditingController(text: currentEntry["content"]);
   }
 
   Future<void> saveChanges() async {
     final repo = EntryRepository();
-    final id = widget.entry["id"];
+    final id = currentEntry["id"];
 
     final updated = {
       "prompt": promptController.text,
       "content": contentController.text,
-      "timestamp": widget.entry["timestamp"],
+      "timestamp": currentEntry["timestamp"],
     };
 
     await repo.updateEntry(id, updated);
 
     setState(() {
-      widget.entry["prompt"] = updated["prompt"];
-      widget.entry["content"] = updated["content"];
+      currentEntry["prompt"] = updated["prompt"];
+      currentEntry["content"] = updated["content"];
       isEditing = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final raw = widget.entry["timestamp"];
+    final raw = currentEntry["timestamp"];
     final dt = DateTime.parse(raw);
     final formatted = "${months[dt.month - 1]} ${dt.day}, ${dt.year}";
 
@@ -63,10 +74,10 @@ class _EntryDetailViewState extends State<EntryDetailView> {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
-                final id = widget.entry["id"];
-                final prompt = widget.entry["prompt"];
-                final content = widget.entry["content"];
-                final timestamp = widget.entry["timestamp"];
+                final id = currentEntry["id"];
+                final prompt = currentEntry["prompt"];
+                final content = currentEntry["content"];
+                final timestamp = currentEntry["timestamp"];
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -78,17 +89,24 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                       content: content,
                     ),
                   ),
-                ).then((_) {
-                  saveChanges();
+                ).then((didSave) async {
+                  if (didSave == true) {
+                    final repo = EntryRepository();
+                    final freshEntry = await repo.getEntryByDate(timestamp);
+                    if (freshEntry != null && mounted) {
+                      setState(() {
+                        currentEntry = Map<String, dynamic>.from(freshEntry);
+                        promptController.text = freshEntry["prompt"];
+                        contentController.text = freshEntry["content"];
+                      });
+                    }
+                  }
                 });
               },
             ),
 
           if (isEditing)
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: saveChanges,
-            ),
+            IconButton(icon: const Icon(Icons.check), onPressed: saveChanges),
         ],
       ),
 
@@ -99,9 +117,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                 children: [
                   TextField(
                     controller: promptController,
-                    decoration: const InputDecoration(
-                      labelText: "Prompt",
-                    ),
+                    decoration: const InputDecoration(labelText: "Prompt"),
                   ),
                   const SizedBox(height: 12),
                   Expanded(
@@ -109,9 +125,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                       controller: contentController,
                       maxLines: null,
                       expands: true,
-                      decoration: const InputDecoration(
-                        labelText: "Content",
-                      ),
+                      decoration: const InputDecoration(labelText: "Content"),
                     ),
                   ),
                 ],
@@ -120,7 +134,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.entry["prompt"],
+                    currentEntry["prompt"],
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -132,7 +146,7 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Text(
-                        widget.entry["content"],
+                        currentEntry["content"],
                         style: const TextStyle(fontSize: 16),
                       ),
                     ),

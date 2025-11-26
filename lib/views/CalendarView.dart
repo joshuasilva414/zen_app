@@ -4,10 +4,9 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:zen_app/data/entries.dart';
 import 'EntryDetailView.dart';
 import 'EntryEditorView.dart';
-import 'package:zen_app/prompts.dart';
 
 class CalendarView extends StatefulWidget {
-  const CalendarView({Key? key}) : super(key: key);
+  const CalendarView({super.key});
 
   @override
   State<CalendarView> createState() => _CalendarViewState();
@@ -21,10 +20,9 @@ class _CalendarViewState extends State<CalendarView> {
 
   LinkedHashMap<DateTime, List<String>> _entryEvents =
       LinkedHashMap<DateTime, List<String>>(
-    equals: isSameDay,
-    hashCode: (key) =>
-        key.day * 1000000 + key.month * 10000 + key.year,
-  );
+        equals: isSameDay,
+        hashCode: (key) => key.day * 1000000 + key.month * 10000 + key.year,
+      );
 
   @override
   void initState() {
@@ -58,8 +56,7 @@ class _CalendarViewState extends State<CalendarView> {
     setState(() {
       _entryEvents = LinkedHashMap<DateTime, List<String>>(
         equals: isSameDay,
-        hashCode: (key) =>
-            key.day * 1000000 + key.month * 10000 + key.year,
+        hashCode: (key) => key.day * 1000000 + key.month * 10000 + key.year,
       )..addAll(mapped);
     });
   }
@@ -67,9 +64,7 @@ class _CalendarViewState extends State<CalendarView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calendar'),
-      ),
+      appBar: AppBar(title: const Text('Calendar')),
       body: Column(
         children: [
           const SizedBox(height: 12),
@@ -91,8 +86,7 @@ class _CalendarViewState extends State<CalendarView> {
                 _loadEntryIndicators();
               },
 
-              selectedDayPredicate: (day) =>
-                  isSameDay(_selectedDay, day),
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
 
               onDaySelected: (selectedDay, focusedDay) async {
                 setState(() {
@@ -108,11 +102,16 @@ class _CalendarViewState extends State<CalendarView> {
                     "-${selectedDay.day.toString().padLeft(2, '0')}";
 
                 final today = DateTime.now();
-                final normalizedToday =
-                    DateTime(today.year, today.month, today.day);
-                final normalizedSelected =
-                    DateTime(selectedDay.year, selectedDay.month,
-                        selectedDay.day);
+                final normalizedToday = DateTime(
+                  today.year,
+                  today.month,
+                  today.day,
+                );
+                final normalizedSelected = DateTime(
+                  selectedDay.year,
+                  selectedDay.month,
+                  selectedDay.day,
+                );
 
                 if (normalizedSelected.isAfter(normalizedToday)) {
                   return;
@@ -134,7 +133,7 @@ class _CalendarViewState extends State<CalendarView> {
                     ),
                   ).then((didSave) {
                     if (didSave == true) {
-                      setState(() {});    // instant refresh
+                      setState(() {}); // instant refresh
                       _loadEntryIndicators(); // async refresh
                     }
                   });
@@ -144,19 +143,15 @@ class _CalendarViewState extends State<CalendarView> {
                     MaterialPageRoute(
                       builder: (_) => EntryDetailView(entry: entry),
                     ),
-                  ).then((didSave) {
-                    if (didSave == true) {
-                      setState(() {});    // instant refresh
-                      _loadEntryIndicators(); // async refresh
-                    }
+                  ).then((_) {
+                    setState(() {}); // instant refresh
+                    _loadEntryIndicators(); // async refresh
                   });
                 }
               },
 
               calendarFormat: _calendarFormat,
-              availableCalendarFormats: const {
-                CalendarFormat.month: 'Month'
-              },
+              availableCalendarFormats: const {CalendarFormat.month: 'Month'},
 
               onFormatChanged: (format) {
                 setState(() {
@@ -172,7 +167,7 @@ class _CalendarViewState extends State<CalendarView> {
               calendarStyle: const CalendarStyle(
                 markersMaxCount: 0,
                 markerDecoration: BoxDecoration(),
-                 selectedDecoration: BoxDecoration(
+                selectedDecoration: BoxDecoration(
                   color: Color(0xFFC96442), // orange
                   shape: BoxShape.circle,
                 ),
@@ -185,13 +180,9 @@ class _CalendarViewState extends State<CalendarView> {
                 todayDecoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.fromBorderSide(
-                    BorderSide(
-                      color: Color(0xFFC96442), 
-                      width: 2,
-                    ),
+                    BorderSide(color: Color(0xFFC96442), width: 2),
                   ),
                 ),
-               
               ),
 
               calendarBuilders: CalendarBuilders(

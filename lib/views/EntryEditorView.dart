@@ -32,8 +32,8 @@ class _EntryEditorViewState extends State<EntryEditorView> {
 
     selectedPrompt =
         (widget.prompt.isEmpty || !allPrompts.contains(widget.prompt))
-            ? null
-            : widget.prompt;
+        ? null
+        : widget.prompt;
 
     contentController = TextEditingController(text: widget.content ?? "");
   }
@@ -42,72 +42,87 @@ class _EntryEditorViewState extends State<EntryEditorView> {
     final repo = EntryRepository();
 
     if (widget.isEditing && widget.entryId != null) {
-      await repo.updateEntry(
-        widget.entryId!,
-        {
+      await repo.updateEntry(widget.entryId!, {
+        "prompt": selectedPrompt ?? "",
+        "timestamp": widget.date,
+        "content": contentController.text,
+      });
+    } else {
+      // Check if an entry already exists for this date to support "upsert"
+      final existing = await repo.getEntryByDate(widget.date);
+      if (existing != null) {
+        await repo.updateEntry(existing['id'], {
           "prompt": selectedPrompt ?? "",
           "timestamp": widget.date,
           "content": contentController.text,
-        },
-      );
-    } else {
-      await repo.insertEntry(
-        selectedPrompt ?? "",
-        widget.date,
-        contentController.text,
-      );
+        });
+      } else {
+        await repo.insertEntry(
+          selectedPrompt ?? "",
+          widget.date,
+          contentController.text,
+        );
+      }
     }
 
-    Navigator.pop(context, true);
+    // Check if this view is embedded directly in the Create tab or pushed via Navigator
+    if (!mounted) return;
+
+    // If we can pop, we were navigated to this view (from HomeView or elsewhere)
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop(true);
+    } else {
+      // We're directly in the Create tab - switch to Today tab
+      DefaultTabController.of(context).animateTo(0);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isEditing ? "Edit Entry" : "New Entry"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: save,
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            DropdownButton<String>(
-              value: selectedPrompt,
-              hint: const Text("Select a prompt"),
-              isExpanded: true,
-              items: allPrompts.map((p) {
-                return DropdownMenuItem(
-                  value: p,
-                  child: Text(p),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedPrompt = value;
-                });
-              },
-            ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await save();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.isEditing ? "Edit Entry" : "New Entry"),
+          actions: [IconButton(icon: const Icon(Icons.check), onPressed: save)],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              DropdownButton<String>(
+                value: selectedPrompt,
+                hint: const Text("Select a prompt"),
+                isExpanded: true,
+                items: allPrompts.map((p) {
+                  return DropdownMenuItem(value: p, child: Text(p));
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedPrompt = value;
+                  });
+                },
+              ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            Expanded(
-              child: TextField(
-                controller: contentController,
-                maxLines: null,
-                expands: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Write your entry...",
+              Expanded(
+                child: TextField(
+                  controller: contentController,
+                  maxLines: null,
+                  expands: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Write your entry...",
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

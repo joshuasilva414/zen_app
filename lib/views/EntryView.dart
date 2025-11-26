@@ -1,22 +1,35 @@
 import 'package:flutter/material.dart';
 
-class EntryView extends StatefulWidget {
-    const EntryView({Key? key, this.date,this.prompt}) : super(key: key);
+import 'EntryEditorView.dart';
 
-    final String? prompt;
-    final String? date;
-    @override
-    State<EntryView> createState() => _EntryViewState();
+class EntryView extends StatefulWidget {
+  const EntryView({super.key});
+
+  @override
+  State<EntryView> createState() => _EntryViewState();
 }
 
 class _EntryViewState extends State<EntryView> {
-    @override
-    Widget build(BuildContext context) {
-        return Scaffold(
-            appBar: AppBar(
-                title: const Text('Entry'),
-            ),
-            body: Center(child: Text(widget.prompt ?? 'Welcome to the Entry tab')),
-        );
-    }
+  String dateKey = "";
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    dateKey =
+        "${now.year.toString().padLeft(4, '0')}"
+        "-${now.month.toString().padLeft(2, '0')}"
+        "-${now.day.toString().padLeft(2, '0')}";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return EntryEditorView(
+      date: dateKey,
+      isEditing: false,
+      entryId: null,
+      prompt: "",
+      content: "",
+    );
+  }
 }
