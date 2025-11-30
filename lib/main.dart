@@ -55,12 +55,12 @@ class _MyAppState extends State<MyApp> {
       mode: mode,
       toggle: toggleTheme,
       child: MaterialApp(
-        title: 'Zen Tabs',
+        title: 'Common Zense',
         theme: claudeLightTheme,
         darkTheme: claudeDarkTheme,
         themeMode: mode,
         debugShowCheckedModeBanner: false,
-        home: const MyHomePage(title: 'Zen Tabs'),
+        home: const MyHomePage(title: 'Common Zense'),
       ),
     );
   }
@@ -103,19 +103,30 @@ class _MyHomePageState extends State<MyHomePage> {
             EntryView(),
             Navigator(
               onGenerateRoute: (settings) {
-                return MaterialPageRoute(
-                  builder: (_) => CalendarView(),
-                );
+                return MaterialPageRoute(builder: (_) => CalendarView());
               },
             ),
           ],
         ),
-        bottomNavigationBar: const TabBar(
+        bottomNavigationBar: TabBar(
           indicatorWeight: 5,
           tabs: [
-            Tab(icon: Icon(Icons.today), text: 'Today'),
-            Tab(icon: Icon(Icons.create), text: 'Create'),
-            Tab(icon: Icon(Icons.calendar_view_month), text: 'Calendar'),
+            Tab(
+              icon: Image.asset('lib/icons/today.png', width: 50, height: 50),
+              text: 'Today',
+            ),
+            Tab(
+              icon: Image.asset('lib/icons/create.png', width: 50, height: 50),
+              text: 'Create',
+            ),
+            Tab(
+              icon: Image.asset(
+                'lib/icons/calendar.png',
+                width: 50,
+                height: 50,
+              ),
+              text: 'Calendar',
+            ),
           ],
         ),
       ),
