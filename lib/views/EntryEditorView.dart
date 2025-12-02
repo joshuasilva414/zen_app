@@ -40,26 +40,27 @@ class _EntryEditorViewState extends State<EntryEditorView> {
 
   Future<void> save() async {
     final repo = EntryRepository();
+    final existing = await repo.getEntryByDate(widget.date);
 
     if (widget.isEditing && widget.entryId != null) {
       await repo.updateEntry(widget.entryId!, {
         "prompt": selectedPrompt ?? "",
-        "timestamp": widget.date,
+        "timestamp": existing?['timestamp'] ?? widget.date,
         "content": contentController.text,
       });
     } else {
       // Check if an entry already exists for this date to support "upsert"
-      final existing = await repo.getEntryByDate(widget.date);
       if (existing != null) {
         await repo.updateEntry(existing['id'], {
           "prompt": selectedPrompt ?? "",
-          "timestamp": widget.date,
+          "timestamp": existing['timestamp'],
           "content": contentController.text,
         });
       } else {
+        final fullTimestamp = DateTime.now().toIso8601String();
         await repo.insertEntry(
           selectedPrompt ?? "",
-          widget.date,
+          fullTimestamp,
           contentController.text,
         );
       }

@@ -45,15 +45,14 @@ class EntryRepository {
 
   Future<Map<String, dynamic>?> getEntryByDate(String date) async {
     final db = await DatabaseInstance.instance.db;
+    // Use LIKE so a date-only key (YYYY-MM-DD) will match full ISO timestamps
     final res = await db.query(
       "entries",
-      where: " timestamp = ?",
-      whereArgs: [date],
+      where: "timestamp LIKE ?",
+      whereArgs: ["$date%"],
       limit: 1,
     );
-    if (res.isEmpty) {
-      return null;
-    }
+    if (res.isEmpty) return null;
     return res.first;
   }
 

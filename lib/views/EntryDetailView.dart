@@ -142,8 +142,15 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                     ),
                   ),
 
+                  // Timestamp stuffs
+                  Text(
+                    "${months[dt.month - 1]} ${dt.day}, ${dt.year} "
+                    "at ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}",
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
                   const SizedBox(height: 16),
 
+                  const SizedBox(height: 16),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Text(
@@ -152,72 +159,6 @@ class _EntryDetailViewState extends State<EntryDetailView> {
                       ),
                     ),
                   ),
-                  if (widget.allEntries != null) ...[
-                    const SizedBox(height: 24),
-                    const Text(
-                      "Today's Entries",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-
-                    Expanded(
-                      child: ListView(
-                        children: widget.allEntries!
-                            .where((e) {
-                              final todayKey = DateTime.now()
-                                  .toString()
-                                  .substring(0, 10);
-                              return e["timestamp"].startsWith(todayKey);
-                            })
-                            .map((e) {
-                              final datetime = DateTime.parse(e["timestamp"]);
-                              final time =
-                                  "${datetime.hour.toString().padLeft(2, '0')}:${datetime.minute.toString().padLeft(2, '0')}";
-
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    top: BorderSide(
-                                      color: Colors.grey.shade300,
-                                    ),
-                                  ),
-                                ),
-                                child: ListTile(
-                                  title: Text(
-                                    time,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFFC96442),
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    e["prompt"],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  trailing: const Icon(
-                                    Icons.arrow_forward,
-                                    color: Color(0xFFC96442),
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      currentEntry = Map<String, dynamic>.from(
-                                        e,
-                                      );
-                                      promptController.text = e["prompt"];
-                                      contentController.text = e["content"];
-                                    });
-                                  },
-                                ),
-                              );
-                            })
-                            .toList(),
-                      ),
-                    ),
-                  ],
                 ],
               ),
       ),

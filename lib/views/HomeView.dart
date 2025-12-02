@@ -117,19 +117,28 @@ class _HomeViewState extends State<HomeView> {
                     color: Color(0xFFC96442),
                   ),
                 ),
-                subtitle: const Text("View Today's Entries"),
+                subtitle: const Text("View Today's Entry"),
                 trailing: const Icon(
                   Icons.arrow_forward,
                   color: Color(0xFFC96442),
                 ),
                 onTap: () async {
                   final repo = EntryRepository();
-                  final all = await repo.getAllEntries();
+
+                  final now = DateTime.now();
+                  final dateKey =
+                      "${now.year.toString().padLeft(4, '0')}"
+                      "-${now.month.toString().padLeft(2, '0')}"
+                      "-${now.day.toString().padLeft(2, '0')}";
+
+                  final entry = await repo.getEntryByDate(dateKey);
+
+                  if (entry == null) return;
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          EntryDetailView(entry: todayEntry!, allEntries: all),
+                      builder: (_) => EntryDetailView(entry: entry),
                     ),
                   ).then((_) => loadTodayEntry());
                 },
