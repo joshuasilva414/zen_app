@@ -55,12 +55,12 @@ class _MyAppState extends State<MyApp> {
       mode: mode,
       toggle: toggleTheme,
       child: MaterialApp(
-        title: 'Common Zense',
+        title: 'Zenful',
         theme: claudeLightTheme,
         darkTheme: claudeDarkTheme,
         themeMode: mode,
         debugShowCheckedModeBanner: false,
-        home: const MyHomePage(title: 'Common Zense'),
+        home: const MyHomePage(title: 'Zenful'),
       ),
     );
   }

@@ -19,6 +19,7 @@ final ThemeData claudeLightTheme = ThemeData(
   brightness: Brightness.light,
   scaffoldBackgroundColor: claudeSurface,
   primaryColor: claudeOrange,
+  fontFamily: 'LibreBaskerville',
   appBarTheme: const AppBarTheme(
     backgroundColor: claudeSurface,
     foregroundColor: claudeText,
@@ -26,8 +27,16 @@ final ThemeData claudeLightTheme = ThemeData(
   ),
   cardColor: claudeCardLight,
   textTheme: const TextTheme(
-    bodyMedium: TextStyle(color: claudeText, fontSize: 16),
-    bodyLarge: TextStyle(color: claudeText, fontSize: 18),
+    bodyMedium: TextStyle(
+      color: claudeText,
+      fontSize: 16,
+      fontFamily: 'LibreBaskerville',
+    ),
+    bodyLarge: TextStyle(
+      color: claudeText,
+      fontSize: 18,
+      fontFamily: 'LibreBaskerville',
+    ),
   ),
   dividerColor: claudeBorder,
   colorScheme: const ColorScheme.light(
@@ -42,6 +51,7 @@ final ThemeData claudeDarkTheme = ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: claudeSurfaceDark,
   primaryColor: claudeOrangeDark,
+  fontFamily: 'LibreBaskerville',
   appBarTheme: const AppBarTheme(
     backgroundColor: claudeSurfaceDark,
     foregroundColor: claudeTextDark,
@@ -49,8 +59,16 @@ final ThemeData claudeDarkTheme = ThemeData(
   ),
   cardColor: claudeCardDark,
   textTheme: const TextTheme(
-    bodyMedium: TextStyle(color: claudeTextDark, fontSize: 16),
-    bodyLarge: TextStyle(color: claudeTextDark, fontSize: 18),
+    bodyMedium: TextStyle(
+      color: claudeTextDark,
+      fontSize: 16,
+      fontFamily: 'LibreBaskerville',
+    ),
+    bodyLarge: TextStyle(
+      color: claudeTextDark,
+      fontSize: 18,
+      fontFamily: 'LibreBaskerville',
+    ),
   ),
   dividerColor: claudeBorderDark,
   colorScheme: const ColorScheme.dark(
